@@ -1,9 +1,8 @@
-package main
+package authorization_microservice
 
 import (
   "os"
   "fmt"
-  "log"
   "time"
   "errors"
   "strings"
@@ -14,13 +13,7 @@ import (
   "github.com/julienschmidt/httprouter"
 )
 
-func main() {
-  router := httprouter.New()
-  router.POST("/authorization-microservice", basicAuth())
-  log.Fatal(http.ListenAndServe(authorizationMicroservicePort, router))
-}
-
-const accessUserPatch, authorizationMicroservicePort string = "./data.json", ":2379"
+const accessUserPatch string = "./data.json"
 
 /* Accsess values. */
 type accessUserJson struct {
