@@ -13,10 +13,8 @@ import (
   "github.com/julienschmidt/httprouter"
 )
 
-const accessUserPatch string = "./data.json"
-
 /* Accsess values. */
-type accessUserJson struct {
+type AccessUserJson struct {
   Username   string `json:"name"`
   Password   string `json:"password"`
   Name       string `json:"claims_name"`
@@ -24,17 +22,17 @@ type accessUserJson struct {
 }
 
 /* Error struct. */
-type exception struct {
+type Exception struct {
   Message string `json:"message"`
 }
 
-func loadAccessUser() (username, password, name, secret string, err error) {
-  file, err1 := ioutil.ReadFile(accessUserPatch)
+func LoadAccessUser(AccessUserPatch string) (username, password, name, secret string, err error) {
+  file, err1 := ioutil.ReadFile(AccessUserPatch)
   if err1 != nil {
     fmt.Printf("File error: %v\n", err1)
     os.Exit(1)
   }
-  data := accessUserJson{}
+  data := AccessUserJson{}
   err2 := json.Unmarshal(file, &data)
   if err2 != nil {
     fmt.Println("error:", err2)
@@ -55,8 +53,8 @@ func loadAccessUser() (username, password, name, secret string, err error) {
   return data.Username, data.Password, data.Name, data.Secret, err
 }
 
-func basicAuth() httprouter.Handle {
-  username, pass, name, secret, err := loadAccessUser();
+func BasicAuth(AccessUserPatch string) httprouter.Handle {
+  username, pass, name, secret, err := LoadAccessUser(AccessUserPatch);
   if err != nil {
     fmt.Println("error:", err)
     os.Exit(3)
@@ -89,8 +87,8 @@ func basicAuth() httprouter.Handle {
   }
 }
 
-func protectedEndpoint (h httprouter.Handle) httprouter.Handle {
-  _, _, _, secret, err := loadAccessUser();
+func ProtectedEndpoint (h httprouter.Handle, AccessUserPatch string) httprouter.Handle {
+  _, _, _, secret, err := LoadAccessUser(AccessUserPatch);
   if err != nil {
     fmt.Println("error:", err)
     os.Exit(3)
@@ -107,18 +105,18 @@ func protectedEndpoint (h httprouter.Handle) httprouter.Handle {
           return []byte(secret), nil
         })
         if error != nil {
-          json.NewEncoder(w).Encode(exception{Message: error.Error()})
+          json.NewEncoder(w).Encode(Exception{Message: error.Error()})
           return
         }
         if token.Valid {
           // Credentials corect. Start callback.
           h(w, req, ps)
         } else {
-          json.NewEncoder(w).Encode(exception{Message: "Invalid authorization token"})
+          json.NewEncoder(w).Encode(Exception{Message: "Invalid authorization token"})
         }
       }
     } else {
-      json.NewEncoder(w).Encode(exception{Message: "An authorization header is required"})
+      json.NewEncoder(w).Encode(Exception{Message: "An authorization header is required"})
     }
   }
 }
