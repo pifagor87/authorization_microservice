@@ -78,7 +78,14 @@ func BasicAuth(AccessUserPatch string) httprouter.Handle {
       // Sign the token with our secret
       tokenString, _ := token.SignedString([]byte(secret))
       // Finally, write the token to the browser window.
-      w.Write([]byte(tokenString))
+      m := make(map[string]interface{})
+      m["token"] = tokenString
+      result, err := json.Marshal(m)
+      if err != nil {
+        json.NewEncoder(w).Encode(Exception{Message: err.Error()})
+        return
+      }
+      w.Write([]byte(string(result)))
     } else {
       // Request Basic Authentication otherwise.
       w.Header().Set("WWW-Authenticate", "Basic realm=Restricted")
