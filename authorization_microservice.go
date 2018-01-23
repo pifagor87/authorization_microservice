@@ -8,10 +8,13 @@ import (
   "strings"
   "net/http"
   "io/ioutil"
-  "encoding/json"
+  "github.com/json-iterator/go"
   "github.com/dgrijalva/jwt-go"
   "github.com/julienschmidt/httprouter"
 )
+
+/* json iterator variable. */
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 /* Accsess values. */
 type AccessUserJson struct {
